@@ -16,7 +16,7 @@ docker-compose up
 # API: http://localhost:8000
 ```
 
-**That's it!** The system loads with 5 sample jobs and 10 sample candidates.
+**That's it!** The system is running and ready for data uploads.
 
 ---
 
@@ -26,9 +26,9 @@ docker-compose up
 
 👉 Visit http://localhost:3000
 
-### 2. Browse Jobs
+### 2. Upload Data
 
-Click "Jobs" tab to see 5 sample job descriptions
+Click "Upload" tab to upload your job descriptions and candidate profiles (JSON, CSV, Excel, or Word)
 
 ### 3. View Matches
 
@@ -40,24 +40,7 @@ Click on a candidate to see why they matched
 
 ---
 
-## 📊 Sample Data
-
-| Jobs                     | Candidates                      |
-| ------------------------ | ------------------------------- |
-| Senior Backend Engineer  | Alice Johnson (8y Backend)      |
-| Frontend React Developer | Bob Smith (4y Frontend)         |
-| DevOps Engineer          | Carol Davis (5y DevOps)         |
-| Data Scientist           | David Chen (5y Data Science)    |
-| Full Stack Developer     | Emma Wilson (6y Full Stack)     |
-|                          | Frank Miller (2y Junior)        |
-|                          | Grace Lee (4y DevOps)           |
-|                          | Henry Zhang (7y Senior)         |
-|                          | Isabella Martinez (5y Frontend) |
-|                          | Jack Thompson (1.5y Junior)     |
-
----
-
-## 🔧 API Quick Reference
+## API Quick Reference
 
 ### Check System Status
 
@@ -233,8 +216,8 @@ docker-compose up
 
 ## 📈 Next Steps
 
-1. ✅ Try with sample data
-2. ✅ Upload your own candidates and jobs
+1. ✅ Upload your candidates and jobs
+2. ✅ Run matching to see ranked results
 3. ✅ Explore API with curl or Postman
 4. ✅ Integrate into your systems
 5. ✅ Deploy to cloud (see DEPLOYMENT.md)

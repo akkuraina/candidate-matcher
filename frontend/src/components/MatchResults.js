@@ -160,29 +160,6 @@ function MatchResults({ jobId, matches, loading }) {
                         </span>
                       </p>
                     </div>
-
-                    {/* Technology Match */}
-                    <div style={{ backgroundColor: 'white', padding: '15px', borderRadius: '5px' }}>
-                      <h5>💻 Technology Match</h5>
-                      <p><strong>Matched Technologies:</strong></p>
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', marginTop: '5px' }}>
-                        {candidateDetails.detailed_explanation?.technology_match?.matched?.slice(0, 5).map((tech, i) => (
-                          <span key={i} className="tag">{tech}</span>
-                        ))}
-                      </div>
-                      {candidateDetails.detailed_explanation?.technology_match?.missing?.length > 0 && (
-                        <>
-                          <p style={{ marginTop: '10px' }}><strong>Missing Technologies:</strong></p>
-                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', marginTop: '5px' }}>
-                            {candidateDetails.detailed_explanation?.technology_match?.missing?.slice(0, 3).map((tech, i) => (
-                              <span key={i} style={{ ...{ backgroundColor: '#f8d7da', color: '#721c24', padding: '5px 10px', borderRadius: '3px', fontSize: '0.9em' } }}>
-                                {tech}
-                              </span>
-                            ))}
-                          </div>
-                        </>
-                      )}
-                    </div>
                   </div>
                 </div>
               )}

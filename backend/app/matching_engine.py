@@ -86,8 +86,10 @@ class MatchingEngine:
             'seniority_score': int (0-100)
         }
         """
-        self.jobs = {job['id']: job for job in jobs}
-        logger.info(f"Added {len(jobs)} job descriptions")
+        # UPDATE jobs instead of REPLACE
+        for job in jobs:
+            self.jobs[job['id']] = job
+        logger.info(f"Added {len(jobs)} job descriptions. Total jobs: {len(self.jobs)}")
     
     def add_candidates(self, candidates: List[Dict[str, Any]]) -> None:
         """
@@ -104,8 +106,10 @@ class MatchingEngine:
             'previous_roles': List[str]
         }
         """
-        self.candidates = {candidate['id']: candidate for candidate in candidates}
-        logger.info(f"Added {len(candidates)} candidates")
+        # UPDATE candidates instead of REPLACE
+        for candidate in candidates:
+            self.candidates[candidate['id']] = candidate
+        logger.info(f"Added {len(candidates)} candidates. Total candidates: {len(self.candidates)}")
     
     def _preprocess_text(self, text: str) -> str:
         """Normalize and clean text for matching."""

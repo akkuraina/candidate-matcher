@@ -17,11 +17,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy backend code
 COPY backend/ .
 
-# Create directories for data
-RUN mkdir -p /app/data/sample-jds /app/data/sample-candidates /app/uploads
-
-# Copy sample data
-COPY data/ ./data/
+# Create directories for uploads
+RUN mkdir -p /app/uploads
 
 # Expose port
 EXPOSE 8000

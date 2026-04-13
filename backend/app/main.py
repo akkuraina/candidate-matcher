@@ -64,24 +64,7 @@ UPLOAD_DIR = Path("./uploads")
 UPLOAD_DIR.mkdir(exist_ok=True)
 
 
-def _load_sample_data():
-    """Load sample data from JSON files if database is empty"""
-    if len(database.get_all_jobs()) == 0:
-        logger.info("Loading sample data...")
-        sample_dir = Path("./data/sample-jds")
-        if sample_dir.exists():
-            for job_file in sample_dir.glob("*.json"):
-                with open(job_file, 'r') as f:
-                    job_data = json.load(f)
-                    database.add_job(job_data)
-    
-    if len(database.get_all_candidates()) == 0:
-        sample_dir = Path("./data/sample-candidates")
-        if sample_dir.exists():
-            for candidate_file in sample_dir.glob("*.json"):
-                with open(candidate_file, 'r') as f:
-                    candidate_data = json.load(f)
-                    database.add_candidate(candidate_data)
+
 
 
 def _sync_engine():
@@ -128,7 +111,7 @@ def _parse_excel_file(content: bytes) -> List[dict]:
             headers = [str(cell).strip().lower().replace(' ', '_').replace('-', '_') if cell else f'col_{i}' 
                       for i, cell in enumerate(first_row)]
             
-            logger.debug(f"Extracted headers: {headers}")
+            logger.info(f"Excel headers found: {headers}")
             
             for row_idx, row in enumerate(all_rows[1:], start=2):
                 if any(row):
@@ -262,18 +245,18 @@ def _extract_candidate_from_entry(entry: dict) -> dict:
     
     # Map various field names to standard candidate fields
     field_mappings = {
-        'name': ['name', 'full_name', 'candidate_name', 'applicant_name', 'candidate'],
-        'summary': ['summary', 'bio', 'about', 'profile', 'description', 'content', 'professional_summary'],
-        'skills': ['skills', 'skill', 'technical_skills', 'competencies', 'expertise', 'tecnical_skils'],
-        'experience_years': ['experience_years', 'years_experience', 'years', 'experience', 'exp_years', 'total_experience'],
-        'email': ['email', 'email_address', 'email_id'],
-        'phone': ['phone', 'phone_number', 'contact_phone'],
-        'location': ['location', 'city', 'place', 'based_in'],
-        'education': ['education', 'degree', 'university', 'qualification'],
-        'certifications': ['certifications', 'cert', 'credentials', 'certificates'],
-        'previous_roles': ['previous_roles', 'work_experience', 'experience', 'past_roles', 'employment'],
-        'linkedin_url': ['linkedin', 'linkedin_url', 'linkedin_profile'],
-        'github_url': ['github', 'github_url', 'github_profile']
+        'name': ['name', 'full_name', 'candidate_name', 'applicant_name', 'candidate', 'fullname'],
+        'summary': ['summary', 'bio', 'about', 'profile', 'description', 'content', 'professional_summary', 'overview'],
+        'skills': ['skills', 'skill', 'technical_skills', 'competencies', 'expertise', 'tecnical_skils', 'tech_skills', 'key_skills', 'main_skills', 'abilities'],
+        'experience_years': ['experience_years', 'years_experience', 'years', 'experience', 'exp_years', 'total_experience', 'years_of_experience', 'yrs_experience'],
+        'email': ['email', 'email_address', 'email_id', 'work_email'],
+        'phone': ['phone', 'phone_number', 'contact_phone', 'mobile'],
+        'location': ['location', 'city', 'place', 'based_in', 'current_location', 'region'],
+        'education': ['education', 'degree', 'university', 'qualification', 'educational_qualification', 'academic'],
+        'certifications': ['certifications', 'cert', 'credentials', 'certificates', 'certs', 'qualifications'],
+        'previous_roles': ['previous_roles', 'work_experience', 'experience', 'past_roles', 'employment', 'job_titles', 'work_history'],
+        'linkedin_url': ['linkedin', 'linkedin_url', 'linkedin_profile', 'linkedin_id'],
+        'github_url': ['github', 'github_url', 'github_profile', 'github_id', 'github_username']
     }
     
     # Try to map fields from entry
@@ -281,6 +264,7 @@ def _extract_candidate_from_entry(entry: dict) -> dict:
         for source_field in source_fields:
             if source_field in normalized_entry and normalized_entry[source_field]:
                 candidate[target_field] = normalized_entry[source_field]
+                logger.debug(f"Mapped {source_field} to {target_field}: {normalized_entry[source_field]}")
                 break
     
     # Ensure minimum required fields
@@ -332,7 +316,6 @@ def _normalize_skills(skills_str: str) -> List[str]:
 async def startup_event():
     """Initialize the application"""
     logger.info("Starting Candidate Matcher Application")
-    _load_sample_data()
     _sync_engine()
     logger.info("Application ready")
 
@@ -642,7 +625,7 @@ async def upload_candidates(file: UploadFile = File(...)):
                 if database.add_candidate(candidate_data):
                     matching_engine.add_candidates([candidate_data])
                     candidates_added += 1
-                    logger.info(f"Added candidate: {candidate_data.get('name')}")
+                    logger.info(f"Added candidate: {candidate_data.get('name')} | Skills: {candidate_data.get('skills')} | Experience: {candidate_data.get('experience_years')}y")
             except Exception as e:
                 errors.append(f"Entry {i+1}: {str(e)}")
                 logger.error(f"Error processing entry {i+1}: {e}", exc_info=True)

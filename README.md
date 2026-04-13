@@ -157,31 +157,6 @@ npm start
 # Client runs at http://localhost:3000
 ```
 
-### Sample Data
-
-The system comes with **10 sample candidates** and **5 sample jobs** in `data/` directory:
-
-**Jobs:**
-
-- Senior Backend Engineer
-- Frontend React Developer
-- DevOps Engineer
-- Data Scientist
-- Full Stack Developer
-
-**Candidates:**
-
-- Alice Johnson (8y Backend)
-- Bob Smith (4y Frontend)
-- Carol Davis (5y DevOps)
-- David Chen (5y Data Science)
-- Emma Wilson (6y Full Stack)
-- Frank Miller (2y Junior Backend)
-- Grace Lee (4y DevOps/Sys Admin)
-- Henry Zhang (7y Full Stack Senior)
-- Isabella Martinez (5y Frontend Specialist)
-- Jack Thompson (1.5y Junior Data Scientist)
-
 ---
 
 ## Architecture
@@ -203,13 +178,6 @@ The system comes with **10 sample candidates** and **5 sample jobs** in `data/` 
 │  │  Endpoints   │  Engine      │   (SQLite/Postgres)  │ │
 │  └──────────────┴──────────────┴──────────────────────┘ │
 └──────────────────────────────────────────────────────────┘
-                       │
-        ┌──────────────┴──────────────┐
-        │                             │
-   ┌────▼─────┐              ┌────────▼────┐
-   │  Sample  │              │   Database  │
-   │   Data   │              │   (Cache)   │
-   └──────────┘              └─────────────┘
 ```
 
 ### Technology Stack
@@ -1104,9 +1072,6 @@ candidate-matcher/
 │   │   └── components/            # React components
 │   ├── public/
 │   └── package.json
-├── data/
-│   ├── sample-jds/               # Sample job descriptions
-│   └── sample-candidates/        # Sample candidate profiles
 ├── Dockerfile                    # Backend container
 ├── frontend.Dockerfile           # Frontend container
 ├── docker-compose.yml            # Multi-container setup
@@ -1128,5 +1093,3 @@ This system demonstrates a **thoughtful, scalable approach** to candidate-job ma
 The matching approach prioritizes **skills and experience** while using **semantic understanding** to catch nuanced fits that keyword matching would miss. The architecture supports growth from a single server to distributed systems handling millions of matching operations daily.
 
 ---
-
-**Built with ❤️ for better hiring outcomes**

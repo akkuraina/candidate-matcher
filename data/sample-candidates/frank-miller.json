@@ -1,0 +1,29 @@
+{
+  "id": "cand-006",
+  "name": "Frank Miller",
+  "email": "frank.miller@email.com",
+  "phone": "+1-555-0106",
+  "summary": "Junior Backend Developer with 2 years of experience. Fresh start in cloud technologies and microservices. Strong foundation in Python and databases. Eager to learn and grow in a supportive environment. Quick learner with good problem-solving skills.",
+  "skills": [
+    "Python",
+    "Flask",
+    "PostgreSQL",
+    "JavaScript",
+    "REST APIs",
+    "Git",
+    "HTML",
+    "CSS",
+    "MongoDB",
+    "Basic Docker"
+  ],
+  "experience_years": 2,
+  "education": "BS Computer Science, State University",
+  "certifications": [],
+  "previous_roles": [
+    "Junior Backend Developer at TechStartup",
+    "Intern at SoftwareCo"
+  ],
+  "location": "Chicago, IL",
+  "linkedin_url": "https://linkedin.com/in/frankmiller",
+  "github_url": "https://github.com/frankmiller"
+}

@@ -1,0 +1,33 @@
+{
+  "id": "cand-007",
+  "name": "Grace Lee",
+  "email": "grace.lee@email.com",
+  "phone": "+1-555-0107",
+  "summary": "DevOps Engineer transitioning from system administration. 4 years of experience managing infrastructure. Recently obtained Kubernetes certification and started learning infrastructure-as-code with Terraform. Motivated to grow in cloud-native technologies.",
+  "skills": [
+    "Linux",
+    "Docker",
+    "Kubernetes",
+    "AWS",
+    "Monitoring",
+    "Bash Scripting",
+    "Python",
+    "Git",
+    "Terraform",
+    "Jenkins"
+  ],
+  "experience_years": 4,
+  "education": "BS IT, Community College",
+  "certifications": [
+    "Certified Kubernetes Administrator",
+    "AWS Solutions Architect Associate"
+  ],
+  "previous_roles": [
+    "Systems Administrator at HostingCo",
+    "Support Engineer at DataCenter",
+    "IT Support at Corporate"
+  ],
+  "location": "Denver, CO",
+  "linkedin_url": "https://linkedin.com/in/gracelee",
+  "github_url": "https://github.com/gracelee"
+}

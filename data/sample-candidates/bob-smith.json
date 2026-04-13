@@ -1,0 +1,31 @@
+{
+  "id": "cand-002",
+  "name": "Bob Smith",
+  "email": "bob.smith@email.com",
+  "phone": "+1-555-0102",
+  "summary": "Frontend Developer with 4 years of React experience. Specialized in building responsive, accessible web applications. Strong understanding of state management and modern JavaScript. Excellent communicator comfortable working with cross-functional teams.",
+  "skills": [
+    "React",
+    "JavaScript",
+    "TypeScript",
+    "HTML",
+    "CSS",
+    "Redux",
+    "Material UI",
+    "REST API Integration",
+    "Git",
+    "Testing",
+    "Responsive Design"
+  ],
+  "experience_years": 4,
+  "education": "BS Computer Science, UC Berkeley",
+  "certifications": [],
+  "previous_roles": [
+    "Frontend Developer at UIDesignCo",
+    "Junior Frontend Developer at WebBuilder Inc",
+    "Intern at TechStartup"
+  ],
+  "location": "San Francisco, CA",
+  "linkedin_url": "https://linkedin.com/in/bobsmith",
+  "github_url": "https://github.com/bobsmith"
+}

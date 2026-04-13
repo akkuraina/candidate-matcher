@@ -1,0 +1,33 @@
+{
+  "id": "cand-010",
+  "name": "Jack Thompson",
+  "email": "jack.thompson@email.com",
+  "phone": "+1-555-0110",
+  "summary": "Junior Data Scientist with 1.5 years of analytics experience. Recently completed coursework in machine learning and deep learning. Proficient in Python data science libraries. Seeking to deepen expertise in production ML systems and advanced techniques.",
+  "skills": [
+    "Python",
+    "Pandas",
+    "Scikit-learn",
+    "Data Analysis",
+    "SQL",
+    "Jupyter",
+    "Statistics",
+    "Data Visualization",
+    "Matplotlib",
+    "Git",
+    "TensorFlow",
+    "Basic Deep Learning"
+  ],
+  "experience_years": 1,
+  "education": "BS Mathematics, NYU",
+  "certifications": [
+    "Google Data Analytics Certificate"
+  ],
+  "previous_roles": [
+    "Junior Data Analyst at InsuranceCorp",
+    "Data Science Intern at Analytics Startup"
+  ],
+  "location": "New York, NY",
+  "linkedin_url": "https://linkedin.com/in/jackthompson",
+  "github_url": "https://github.com/jackthompson"
+}

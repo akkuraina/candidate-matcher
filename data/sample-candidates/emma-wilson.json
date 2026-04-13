@@ -1,0 +1,33 @@
+{
+  "id": "cand-005",
+  "name": "Emma Wilson",
+  "email": "emma.wilson@email.com",
+  "phone": "+1-555-0105",
+  "summary": "Full Stack Developer with 6 years of experience building end-to-end web applications. Proficient in Python, JavaScript, and modern frameworks. Comfortable working across the entire stack from database design to user interfaces. Proven ability to deliver features from conception to production.",
+  "skills": [
+    "Python",
+    "Django",
+    "FastAPI",
+    "JavaScript",
+    "React",
+    "PostgreSQL",
+    "MongoDB",
+    "REST APIs",
+    "GraphQL",
+    "Git",
+    "Docker",
+    "AWS",
+    "TypeScript"
+  ],
+  "experience_years": 6,
+  "education": "BS Software Engineering, Carnegie Mellon University",
+  "certifications": [],
+  "previous_roles": [
+    "Full Stack Engineer at WebApps Inc",
+    "Backend Developer at SaaS Startup",
+    "Junior Developer at TechServices"
+  ],
+  "location": "Austin, TX",
+  "linkedin_url": "https://linkedin.com/in/emmawilson",
+  "github_url": "https://github.com/emmawilson"
+}

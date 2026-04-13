@@ -1,0 +1,49 @@
+version: "3.8"
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: candidate-matcher-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - DATABASE_URL=sqlite:///./candidate_matcher.db
+    volumes:
+      - ./data:/app/data
+      - ./uploads:/app/uploads
+      - ./candidate_matcher.db:/app/candidate_matcher.db
+    command: python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    networks:
+      - candidate-matcher-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend.Dockerfile
+    container_name: candidate-matcher-frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - candidate-matcher-network
+    environment:
+      - REACT_APP_API_URL=http://localhost:8000
+
+networks:
+  candidate-matcher-network:
+    driver: bridge
+
+volumes:
+  backend_data:
+  uploads:

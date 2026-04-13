@@ -1,0 +1,29 @@
+{
+  "id": "jd-005",
+  "title": "Full Stack Developer",
+  "company": "StartupHub Co",
+  "description": "We're looking for a versatile Full Stack Developer to build end-to-end web applications. You'll work across the entire technology stack, from database design to user interface. Responsibilities include feature development, database optimization, API creation, and collaborating with product and design teams.",
+  "required_skills": [
+    "Python",
+    "JavaScript",
+    "React",
+    "Django",
+    "PostgreSQL",
+    "REST APIs",
+    "Git"
+  ],
+  "optional_skills": [
+    "TypeScript",
+    "Docker",
+    "AWS",
+    "Agile",
+    "Testing",
+    "CI/CD",
+    "GraphQL"
+  ],
+  "experience_level": "mid",
+  "years_required": 3,
+  "seniority_score": 60,
+  "salary_range": "$90,000 - $130,000",
+  "location": "Austin, TX"
+}

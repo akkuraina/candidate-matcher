@@ -1,0 +1,29 @@
+{
+  "id": "jd-001",
+  "title": "Senior Backend Engineer",
+  "company": "TechCorp Inc",
+  "description": "We are looking for an experienced Senior Backend Engineer to lead the development of our microservices architecture. You will work with Python, FastAPI, and cloud technologies to build scalable systems serving millions of users. Responsibilities include designing APIs, optimizing database performance, implementing CI/CD pipelines, and mentoring junior developers.",
+  "required_skills": [
+    "Python",
+    "FastAPI",
+    "PostgreSQL",
+    "Docker",
+    "Kubernetes",
+    "REST API Design",
+    "Microservices",
+    "Git"
+  ],
+  "optional_skills": [
+    "Machine Learning",
+    "AWS",
+    "GraphQL",
+    "Redis",
+    "Elasticsearch",
+    "Leadership"
+  ],
+  "experience_level": "senior",
+  "years_required": 7,
+  "seniority_score": 85,
+  "salary_range": "$150,000 - $220,000",
+  "location": "San Francisco, CA"
+}

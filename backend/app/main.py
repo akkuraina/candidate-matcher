@@ -12,6 +12,7 @@ import os
 import json
 import csv
 import uuid
+import re
 from pathlib import Path
 from typing import List, Optional
 from datetime import datetime
@@ -195,6 +196,66 @@ def _parse_word_file(content: bytes) -> List[dict]:
         raise ValueError(f"Failed to parse Word file: {str(e)}")
 
 
+
+
+def _extract_skills_from_text(text: str) -> List[str]:
+    """Extract skills from job description text by looking for 'Skills Required' or similar sections"""
+    if not text:
+        logger.warning("[SKILL EXTRACTION] No text provided")
+        return []
+    
+    text = str(text).strip()
+    skills = []
+    
+    logger.warning(f"[SKILL EXTRACTION] Attempting to extract from text (length: {len(text)} chars)")
+    
+    # Pattern 1: Find "Skills Required" section and capture everything after it
+    # Look for the "Skills Required" text, then get everything until the next section or end
+    matches = list(re.finditer(r'(?:skills\s+(?:required|needed)|required\s+skills)', text, re.IGNORECASE))
+    
+    if matches:
+        logger.warning(f"[SKILL EXTRACTION] Found {len(matches)} 'Skills Required' section(s)")
+        match_start = matches[0].end()  # Position right after "Skills Required"
+        
+        # Find where the skills text starts and ends
+        # Skills typically start immediately after the section header
+        remaining_text = text[match_start:]
+        
+        # Remove leading colons, spaces, and newlines
+        remaining_text = re.sub(r'^[\s:]*\n*', '', remaining_text)
+        
+        logger.warning(f"[SKILL EXTRACTION] Text after 'Skills Required': {remaining_text[:100]}...")
+        
+        # Find the end of the skills section (either double newline, or next major section)
+        end_match = re.search(r'\n\n|(?:\n[A-Z][a-zA-Z\s]*:)|$', remaining_text)
+        if end_match:
+            skills_text = remaining_text[:end_match.start()].strip()
+        else:
+            skills_text = remaining_text.strip()
+        
+        logger.warning(f"[SKILL EXTRACTION] Extracted skills text: {skills_text[:150]}...")
+        
+        # Split by comma, semicolon, or newline
+        if skills_text:
+            skills = [s.strip() for s in re.split(r'[,;\n•-]', skills_text) if s.strip()]
+            logger.warning(f"[SKILL EXTRACTION] Found {len(skills)} skills: {skills[:5]}...")
+            return skills
+    
+    logger.warning(f"[SKILL EXTRACTION] No 'Skills Required' section found")
+    
+    # Fallback: Look for any line with multiple comma-separated values
+    lines = text.split('\n')
+    for line_num, line in enumerate(lines):
+        comma_count = line.count(',')
+        if comma_count >= 3 and len(line) > 30:
+            logger.warning(f"[SKILL EXTRACTION] Found comma-separated line {line_num} with {comma_count} commas: {line[:150]}...")
+            skills = [s.strip() for s in line.split(',') if s.strip()]
+            logger.warning(f"[SKILL EXTRACTION] Extracted {len(skills)} skills from comma list: {skills[:5]}...")
+            return skills
+    
+    logger.warning(f"[SKILL EXTRACTION] No skills found - extracted list is empty")
+    return []
+
 def _extract_job_from_entry(entry: dict) -> dict:
     """Extract job description data from a flexible entry format"""
     job = {}
@@ -235,12 +296,22 @@ def _extract_job_from_entry(entry: dict) -> dict:
     # DEBUG: Log what happened with skills specifically
     job_title = job.get('title', 'Unknown')
     if 'required_skills' in job and job['required_skills']:
-        logger.warning(f"[JOB REQUIRED SKILLS FOUND] {job_title}: {job['required_skills']}")
+        logger.warning(f"[JOB REQUIRED SKILLS FOUND] {job_title}: {len(job['required_skills'])} skills")
     else:
-        logger.warning(f"[NO JOB REQUIRED SKILLS FOUND] {job_title}: Checked for required_skills")
-        logger.warning(f"  - required_skills value: {normalized_entry.get('required_skills', 'NOT FOUND')}")
-        logger.warning(f"  - must_have_skills value: {normalized_entry.get('must_have_skills', 'NOT FOUND')}")
-        logger.warning(f"  - skills_required value: {normalized_entry.get('skills_required', 'NOT FOUND')}")
+        logger.warning(f"[NO JOB REQUIRED SKILLS IN STRUCTURED FIELDS] {job_title}: Will try extracting from description...")
+        # Try extracting from job description text
+        if 'description' in job and job['description']:
+            extracted_skills = _extract_skills_from_text(job['description'])
+            if extracted_skills:
+                job['required_skills'] = extracted_skills
+                logger.warning(f"[SUCCESS] Extracted {len(extracted_skills)} skills from job description")
+    
+    # Convert skills to list if string
+    if 'required_skills' in job and isinstance(job['required_skills'], str):
+        job['required_skills'] = _normalize_skills(job['required_skills'])
+    
+    if 'optional_skills' in job and isinstance(job['optional_skills'], str):
+        job['optional_skills'] = _normalize_skills(job['optional_skills'])
     
     # Ensure minimum required fields
     if 'title' not in job or not job['title']:
@@ -308,14 +379,22 @@ def _extract_candidate_from_entry(entry: dict) -> dict:
     # DEBUG: Log what happened with skills specifically
     candidate_name = candidate.get('name', 'Unknown')
     if 'skills' in candidate:
-        logger.warning(f"[SKILLS FOUND] {candidate_name}: {candidate['skills']}")
+        if isinstance(candidate['skills'], list):
+            logger.warning(f"[SKILLS FOUND AS LIST] {candidate_name}: {len(candidate['skills'])} skills - {candidate['skills'][:5]}...")
+        else:
+            logger.warning(f"[SKILLS FOUND AS STRING] {candidate_name}: {candidate['skills'][:100]}...")
     else:
         logger.warning(f"[NO SKILLS] {candidate_name}: Checking alternate fields...")
-        logger.warning(f"  - parsed_skills: {normalized_entry.get('parsed_skills', 'NOT FOUND')}")
+        logger.warning(f"  - parsed_skills: {normalized_entry.get('parsed_skills', 'NOT FOUND')[:100] if normalized_entry.get('parsed_skills') else 'NOT FOUND'}")
         logger.warning(f"  - programming_languages: {normalized_entry.get('programming_languages', 'NOT FOUND')}")
         logger.warning(f"  - backend_frameworks: {normalized_entry.get('backend_frameworks', 'NOT FOUND')}")
         logger.warning(f"  - frontend_technologies: {normalized_entry.get('frontend_technologies', 'NOT FOUND')}")
         logger.warning(f"  - mobile_technologies: {normalized_entry.get('mobile_technologies', 'NOT FOUND')}")
+    
+    # Convert skills to list if it's a string (CRITICAL: parsed_skills comes as string)
+    if 'skills' in candidate and isinstance(candidate['skills'], str):
+        candidate['skills'] = _normalize_skills(candidate['skills'])
+        logger.warning(f"[CONVERTED SKILLS TO LIST] {candidate_name}: {len(candidate['skills'])} skills after normalization")
     
     # If skills not found, try combining alternate skill fields
     if 'skills' not in candidate or not candidate['skills']:
@@ -550,7 +629,7 @@ async def upload_jobs(file: UploadFile = File(...)):
             try:
                 # Extract job data intelligently from flexible format
                 job_data = _extract_job_from_entry(entry)
-                logger.debug(f"Extracted job {i+1}: title={job_data.get('title')}, required_skills={job_data.get('required_skills')}")
+                logger.warning(f"[UPLOAD] Extracted job {i+1}: title={job_data.get('title')}, has_required_skills={bool(job_data.get('required_skills'))}, count={len(job_data.get('required_skills', []))}")
                 
                 # Validate minimum required fields
                 if not job_data.get('title') or not job_data.get('description'):
@@ -561,6 +640,7 @@ async def upload_jobs(file: UploadFile = File(...)):
                 # Parse skills if they're strings
                 if isinstance(job_data.get('required_skills'), str):
                     job_data['required_skills'] = _normalize_skills(job_data['required_skills'])
+                    logger.warning(f"[UPLOAD] Converted string skills to list: {len(job_data['required_skills'])} skills")
                 elif not job_data.get('required_skills'):
                     job_data['required_skills'] = []
                 
@@ -574,6 +654,11 @@ async def upload_jobs(file: UploadFile = File(...)):
                     job_data['years_required'] = int(job_data.get('years_required', 0))
                 except (ValueError, TypeError):
                     job_data['years_required'] = 0
+                
+                # Final validation: ensure skills are set
+                logger.warning(f"[UPLOAD PRE-SAVE] Job: {job_data.get('title')} | Required Skills Count: {len(job_data.get('required_skills', []))} | Optional Skills Count: {len(job_data.get('optional_skills', []))}")
+                if job_data.get('required_skills'):
+                    logger.warning(f"[UPLOAD PRE-SAVE] Sample required skills: {job_data['required_skills'][:3]}")
                 
                 if database.add_job(job_data):
                     matching_engine.add_job_descriptions([job_data])

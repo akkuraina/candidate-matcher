@@ -99,7 +99,7 @@ function Upload({ onUploadSuccess }) {
           className="upload-btn"
           onClick={handleUpload}
           disabled={!file || uploading}
-          style={{ marginTop: '15px', cursor: uploading ? 'not-allowed' : 'pointer' }}
+          style={{ marginTop: '15px', marginLeft: '15px', cursor: uploading ? 'not-allowed' : 'pointer' }}
         >
           {uploading ? 'Uploading...' : 'Upload'}
         </button>

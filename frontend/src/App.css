@@ -341,79 +341,8 @@
   border: 1px solid rgba(0, 191, 255, 0.3);
 }
 
-/* Navigation Navbar */
-.navigation {
-  background: #0f1419;
-  border-bottom: 1px solid rgba(0, 191, 255, 0.2);
-  padding: 15px 0;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
-}
-
-.nav-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.nav-logo h2 {
-  color: #00bfff;
-  margin: 0;
-  font-size: 1.5em;
-  text-shadow: 0 0 10px rgba(0, 191, 255, 0.3);
-}
-
-.nav-tabs {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-
-.nav-tab {
-  background: transparent;
-  color: #b0b9c8;
-  border: 1px solid rgba(0, 191, 255, 0.2);
-  padding: 8px 16px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.3s ease;
-}
-
-.nav-tab:hover {
-  color: #00bfff;
-  border-color: #00bfff;
-  background: rgba(0, 191, 255, 0.1);
-}
-
-.nav-tab.active {
-  background: #00bfff;
-  color: #0a0e27;
-  border-color: #00bfff;
-}
-
 /* Responsive */
 @media (max-width: 768px) {
-  .nav-container {
-    flex-direction: column;
-    gap: 15px;
-  }
-
-  .nav-tabs {
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-
-  .nav-tab {
-    padding: 6px 12px;
-    font-size: 0.9em;
-  }
-
   .dashboard h1 {
     font-size: 1.8em;
   }
@@ -447,12 +376,11 @@
 
 /* Navigation Styling */
 .navigation {
-  background: #0f1419;
-  border-bottom: 1px solid rgba(0, 191, 255, 0.2);
+  background: #0a0e27;
+  border-bottom: 1px solid rgba(0, 191, 255, 0.3);
   position: sticky;
   top: 0;
   z-index: 100;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
 .nav-container {
@@ -467,7 +395,6 @@
 
 .nav-logo h2 {
   color: #00bfff;
-  text-shadow: 0 0 10px rgba(0, 191, 255, 0.3);
   margin: 0;
   font-size: 24px;
 }
@@ -484,9 +411,8 @@
   padding: 8px 16px;
   border-radius: 5px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 14px;
   font-weight: 500;
+  transition: all 0.3s ease;
 }
 
 .nav-tab:hover {

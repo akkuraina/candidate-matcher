@@ -213,24 +213,40 @@ class MatchingEngine:
         Returns:
             Tuple of (score, matched_required_count, matched_optional_count)
         """
-        candidate_skills = set(skill.lower() for skill in candidate.get('skills', []))
+        candidate_skills = [skill.lower().strip() for skill in candidate.get('skills', []) if skill]
+        required_skills = [skill.lower().strip() for skill in job.get('required_skills', []) if skill]
+        optional_skills = [skill.lower().strip() for skill in job.get('optional_skills', []) if skill]
         
-        required_skills = set(skill.lower() for skill in job.get('required_skills', []))
-        optional_skills = set(skill.lower() for skill in job.get('optional_skills', []))
+        candidate_skills_set = set(candidate_skills)
+        
+        logger.debug(f"Skill matching: {len(candidate_skills)} candidate skills, {len(required_skills)} required, {len(optional_skills)} optional")
+        logger.debug(f"Candidate skills: {candidate_skills[:5]}...")
+        logger.debug(f"Required skills: {required_skills[:5]}...")
         
         # Match skills (considering partial matches and variations)
         matched_required = 0
         matched_optional = 0
+        matched_req_list = []
+        matched_opt_list = []
         
         for req_skill in required_skills:
-            if any(req_skill in cand_skill or cand_skill in req_skill 
-                   for cand_skill in candidate_skills):
-                matched_required += 1
+            # Check for exact match or substring match
+            for cand_skill in candidate_skills:
+                if req_skill == cand_skill or req_skill in cand_skill or (len(req_skill) > 2 and len(cand_skill) > 2 and req_skill in cand_skill):
+                    matched_required += 1
+                    matched_req_list.append(req_skill)
+                    break
         
         for opt_skill in optional_skills:
-            if any(opt_skill in cand_skill or cand_skill in opt_skill 
-                   for cand_skill in candidate_skills):
-                matched_optional += 1
+            # Check for exact match or substring match
+            for cand_skill in candidate_skills:
+                if opt_skill == cand_skill or opt_skill in cand_skill or (len(opt_skill) > 2 and len(cand_skill) > 2 and opt_skill in cand_skill):
+                    matched_optional += 1
+                    matched_opt_list.append(opt_skill)
+                    break
+        
+        logger.debug(f"Matched {matched_required}/{len(required_skills)} required skills: {matched_req_list}")
+        logger.debug(f"Matched {matched_optional}/{len(optional_skills)} optional skills: {matched_opt_list}")
         
         # Score calculation
         required_count = len(required_skills) if required_skills else 1
@@ -303,12 +319,49 @@ class MatchingEngine:
                 f"{'...' if keywords_matched > 5 else ''}"
             )
         
+        # Calculate ACTUAL missing required skills (from skill matching)
+        candidate_skills_set = set(skill.lower() for skill in candidate.get('skills', []))
+        required_skills = job.get('required_skills', [])
+        optional_skills = job.get('optional_skills', [])
+        
+        logger.warning(f"[SKILL ANALYSIS] Candidate {candidate.get('name')} vs Job {job.get('title')}")
+        logger.warning(f"[SKILL ANALYSIS] Candidate skills ({len(candidate_skills_set)}): {list(candidate_skills_set)[:10]}...")
+        logger.warning(f"[SKILL ANALYSIS] Required skills ({len(required_skills)}): {required_skills[:5]}...")
+        logger.warning(f"[SKILL ANALYSIS] Optional skills ({len(optional_skills)}): {optional_skills[:5]}...")
+        
+        # Find required skills that are missing
+        missing_required_list = []
+        for req_skill in required_skills:
+            req_skill_lower = req_skill.lower()
+            # Check if this required skill is in candidate skills
+            is_matched = any(
+                req_skill_lower == cand or req_skill_lower in cand or cand in req_skill_lower
+                for cand in candidate_skills_set
+            )
+            if not is_matched:
+                missing_required_list.append(req_skill)
+        
+        logger.warning(f"[SKILL ANALYSIS] Missing required ({len(missing_required_list)}): {missing_required_list[:5]}...")
+        
+        # Find optional skills that are missing
+        missing_optional_list = []
+        for opt_skill in optional_skills:
+            opt_skill_lower = opt_skill.lower()
+            # Check if this optional skill is in candidate skills
+            is_matched = any(
+                opt_skill_lower == cand or opt_skill_lower in cand or cand in opt_skill_lower
+                for cand in candidate_skills_set
+            )
+            if not is_matched:
+                missing_optional_list.append(opt_skill)
+        
+        logger.warning(f"[SKILL ANALYSIS] Missing optional ({len(missing_optional_list)}): {missing_optional_list[:5]}...")
+        
         # Missing requirements
-        missing_req = details['missing_required']
-        if missing_req:
+        if missing_required_list:
             explanation_parts.append(
-                f"Missing: {', '.join(missing_req[:3])}"
-                f"{'...' if len(missing_req) > 3 else ''}"
+                f"Missing required: {', '.join(missing_required_list[:3])}"
+                f"{'...' if len(missing_required_list) > 3 else ''}"
             )
         
         # Semantic fit
@@ -319,11 +372,6 @@ class MatchingEngine:
             explanation_parts.append("Moderate semantic fit - may require ramp-up")
         
         summary = "; ".join(explanation_parts)
-        
-        # Calculate missing optional skills
-        all_required = set(job.get('required_skills', []))
-        all_optional = set(job.get('optional_skills', []))
-        missing_optional = list(all_optional - set(missing_req)) if missing_req else list(all_optional)
         
         detailed_explanation = {
             "skill_match": {
@@ -338,7 +386,7 @@ class MatchingEngine:
             },
             "technology_match": {
                 "matched": list(details['matched_keywords'])[:10],
-                "missing": missing_req[:5],
+                "missing": missing_required_list[:5],
                 "score": round(scores['keyword_score'], 1)
             },
             "semantic_alignment": {
@@ -346,8 +394,8 @@ class MatchingEngine:
                 "assessment": "Strong" if semantic_score > 75 else "Moderate" if semantic_score > 50 else "Weak"
             },
             "missing_skills": {
-                "required": missing_req[:10],
-                "optional": missing_optional[:10]
+                "required": missing_required_list[:10],
+                "optional": missing_optional_list[:10]
             }
         }
         
@@ -364,6 +412,17 @@ class MatchingEngine:
             raise ValueError(f"Job ID {job_id} not found")
         
         job = self.jobs[job_id]
+        
+        # Log what we have for this job
+        logger.warning(f"[MATCHING] Using job {job_id} from matching engine")
+        logger.warning(f"[MATCHING] Job title: {job.get('title')}")
+        logger.warning(f"[MATCHING] Required skills count: {len(job.get('required_skills', []))}")
+        logger.warning(f"[MATCHING] Optional skills count: {len(job.get('optional_skills', []))}")
+        if job.get('required_skills'):
+            logger.warning(f"[MATCHING] Sample required skills: {job['required_skills'][:3]}")
+        if job.get('optional_skills'):
+            logger.warning(f"[MATCHING] Sample optional skills: {job['optional_skills'][:3]}")
+        
         matches = []
         
         for candidate_id, candidate in self.candidates.items():

@@ -320,6 +320,11 @@ class MatchingEngine:
         
         summary = "; ".join(explanation_parts)
         
+        # Calculate missing optional skills
+        all_required = set(job.get('required_skills', []))
+        all_optional = set(job.get('optional_skills', []))
+        missing_optional = list(all_optional - set(missing_req)) if missing_req else list(all_optional)
+        
         detailed_explanation = {
             "skill_match": {
                 "required": f"{matched_req}/{total_req}",
@@ -339,6 +344,10 @@ class MatchingEngine:
             "semantic_alignment": {
                 "score": round(semantic_score, 1),
                 "assessment": "Strong" if semantic_score > 75 else "Moderate" if semantic_score > 50 else "Weak"
+            },
+            "missing_skills": {
+                "required": missing_req[:10],
+                "optional": missing_optional[:10]
             }
         }
         

@@ -87,78 +87,98 @@ function MatchResults({ jobId, matches, loading }) {
               </div>
 
               {selectedCandidate === match.candidate_id && candidateDetails && (
-                <div style={{ backgroundColor: '#f8f9fa', padding: '20px', borderRadius: '5px', marginBottom: '20px' }}>
-                  <h4>📋 Detailed Matching Analysis</h4>
+                <div style={{ backgroundColor: '#1a1a2e', padding: '20px', borderRadius: '5px', marginBottom: '20px', border: '1px solid rgba(0, 191, 255, 0.2)' }}>
+                  <h4 style={{ color: '#00bfff' }}>📋 Detailed Matching Analysis</h4>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px', marginTop: '15px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginTop: '15px' }}>
                     {/* Candidate Profile */}
-                    <div style={{ backgroundColor: 'white', padding: '15px', borderRadius: '5px' }}>
-                      <h5>👤 Candidate Profile</h5>
-                      <p><strong>Name:</strong> {candidateDetails.candidate_name}</p>
-                      <p><strong>Experience:</strong> {candidateDetails.candidate_profile?.experience_years} years</p>
+                    <div style={{ backgroundColor: '#16213e', padding: '15px', borderRadius: '5px', border: '1px solid rgba(0, 191, 255, 0.2)' }}>
+                      <h5 style={{ color: '#00bfff' }}>👤 Candidate Profile</h5>
+                      <p style={{ color: '#b0b9c8' }}><strong>Name:</strong> {candidateDetails.candidate_name}</p>
+                      <p style={{ color: '#b0b9c8' }}><strong>Experience:</strong> {candidateDetails.candidate_profile?.experience_years} years</p>
                       {candidateDetails.candidate_profile?.location && (
-                        <p><strong>Location:</strong> {candidateDetails.candidate_profile.location}</p>
+                        <p style={{ color: '#b0b9c8' }}><strong>Location:</strong> {candidateDetails.candidate_profile.location}</p>
                       )}
                       <div style={{ marginTop: '10px' }}>
-                        <p style={{ margin: '5px 0', fontSize: '0.9em' }}><strong>Skills:</strong></p>
+                        <p style={{ margin: '5px 0', fontSize: '0.9em', color: '#00bfff' }}><strong>Skills:</strong></p>
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
                           {candidateDetails.candidate_profile?.skills?.slice(0, 5).map((skill, i) => (
                             <span key={i} className="tag">{skill}</span>
                           ))}
+                          {candidateDetails.candidate_profile?.skills?.length > 5 && (
+                            <span style={{ fontSize: '0.9em', color: '#666' }}>+{candidateDetails.candidate_profile.skills.length - 5} more</span>
+                          )}
                         </div>
                       </div>
                     </div>
 
-                    {/* Job Requirements */}
-                    <div style={{ backgroundColor: 'white', padding: '15px', borderRadius: '5px' }}>
-                      <h5>💼 Job Requirements</h5>
-                      <p><strong>Title:</strong> {candidateDetails.job_requirements?.title}</p>
-                      <p><strong>Required Experience:</strong> {candidateDetails.job_requirements?.years_required} years</p>
-                      {candidateDetails.job_requirements?.company && (
-                        <p><strong>Company:</strong> {candidateDetails.job_requirements.company}</p>
+                    {/* Experience Matched */}
+                    <div style={{ backgroundColor: '#16213e', padding: '15px', borderRadius: '5px', border: '1px solid rgba(0, 191, 255, 0.2)' }}>
+                      <h5 style={{ color: '#00bfff' }}>📚 Experience Matched</h5>
+                      <p style={{ color: '#b0b9c8' }}>
+                        <strong>Candidate Experience:</strong> {candidateDetails.detailed_explanation?.experience?.candidate_years} years
+                      </p>
+                      <p style={{ color: '#b0b9c8' }}>
+                        <strong>Required Experience:</strong> {candidateDetails.detailed_explanation?.experience?.required_years} years
+                      </p>
+                      <p style={{ marginTop: '10px' }}>
+                        <strong style={{ color: '#00bfff' }}>Score:</strong>{' '}
+                        <span style={{ fontSize: '1.3em', color: '#00ff88', fontWeight: 'bold' }}>
+                          {candidateDetails.detailed_explanation?.experience?.score}%
+                        </span>
+                      </p>
+                    </div>
+
+                    {/* Skills Matched */}
+                    <div style={{ backgroundColor: '#16213e', padding: '15px', borderRadius: '5px', border: '1px solid rgba(0, 191, 255, 0.2)' }}>
+                      <h5 style={{ color: '#00bfff' }}>🎯 Skills Matched</h5>
+                      <p style={{ color: '#b0b9c8' }}>
+                        <strong>Required Skills:</strong> {candidateDetails.detailed_explanation?.skill_match?.required}
+                      </p>
+                      <p style={{ color: '#b0b9c8' }}>
+                        <strong>Optional Skills:</strong> {candidateDetails.detailed_explanation?.skill_match?.optional}
+                      </p>
+                      <p style={{ marginTop: '10px' }}>
+                        <strong style={{ color: '#00bfff' }}>Score:</strong>{' '}
+                        <span style={{ fontSize: '1.3em', color: '#00ff88', fontWeight: 'bold' }}>
+                          {candidateDetails.detailed_explanation?.skill_match?.score}%
+                        </span>
+                      </p>
+                    </div>
+
+                    {/* Lacking Skills */}
+                    <div style={{ backgroundColor: '#16213e', padding: '15px', borderRadius: '5px', border: '1px solid rgba(0, 191, 255, 0.2)' }}>
+                      <h5 style={{ color: '#00bfff' }}>⚠️ Lacking Skills</h5>
+                      {(candidateDetails.detailed_explanation?.missing_skills?.required?.length > 0 || 
+                        candidateDetails.detailed_explanation?.missing_skills?.optional?.length > 0) ? (
+                        <>
+                          {candidateDetails.detailed_explanation?.missing_skills?.required?.length > 0 && (
+                            <div style={{ marginBottom: '10px' }}>
+                              <p style={{ margin: '5px 0', fontSize: '0.9em', color: '#ff6b6b' }}><strong>Missing Required:</strong></p>
+                              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
+                                {candidateDetails.detailed_explanation.missing_skills.required.map((skill, i) => (
+                                  <span key={i} className="tag" style={{ backgroundColor: 'rgba(255, 107, 107, 0.15)', color: '#ff6b6b', border: '1px solid rgba(255, 107, 107, 0.3)' }}>{skill}</span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          {candidateDetails.detailed_explanation?.missing_skills?.optional?.length > 0 && (
+                            <div>
+                              <p style={{ margin: '5px 0', fontSize: '0.9em', color: '#ffcc00' }}><strong>Missing Optional:</strong></p>
+                              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
+                                {candidateDetails.detailed_explanation.missing_skills.optional.slice(0, 5).map((skill, i) => (
+                                  <span key={i} className="tag" style={{ backgroundColor: 'rgba(255, 204, 0, 0.15)', color: '#ffcc00', border: '1px solid rgba(255, 204, 0, 0.3)' }}>{skill}</span>
+                                ))}
+                                {candidateDetails.detailed_explanation.missing_skills.optional.length > 5 && (
+                                  <span style={{ fontSize: '0.9em', color: '#999' }}>+{candidateDetails.detailed_explanation.missing_skills.optional.length - 5} more</span>
+                                )}
+                              </div>
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <p style={{ color: '#4caf50', fontWeight: 'bold' }}>✓ All required skills matched!</p>
                       )}
-                      <div style={{ marginTop: '10px' }}>
-                        <p style={{ margin: '5px 0', fontSize: '0.9em' }}><strong>Required Skills:</strong></p>
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
-                          {candidateDetails.job_requirements?.required_skills?.slice(0, 5).map((skill, i) => (
-                            <span key={i} className="tag required">{skill}</span>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Skill Match */}
-                    <div style={{ backgroundColor: 'white', padding: '15px', borderRadius: '5px' }}>
-                      <h5>🎯 Skill Match</h5>
-                      <p>
-                        <strong>Required:</strong> {candidateDetails.detailed_explanation?.skill_match?.required}
-                      </p>
-                      <p>
-                        <strong>Optional:</strong> {candidateDetails.detailed_explanation?.skill_match?.optional}
-                      </p>
-                      <p style={{ marginTop: '10px' }}>
-                        <strong>Score:</strong>{' '}
-                        <span style={{ fontSize: '1.3em', color: '#667eea' }}>
-                          {candidateDetails.detailed_explanation?.skill_match?.score}
-                        </span>
-                      </p>
-                    </div>
-
-                    {/* Experience */}
-                    <div style={{ backgroundColor: 'white', padding: '15px', borderRadius: '5px' }}>
-                      <h5>📚 Experience Alignment</h5>
-                      <p>
-                        <strong>Candidate:</strong> {candidateDetails.detailed_explanation?.experience?.candidate_years} years
-                      </p>
-                      <p>
-                        <strong>Required:</strong> {candidateDetails.detailed_explanation?.experience?.required_years} years
-                      </p>
-                      <p style={{ marginTop: '10px' }}>
-                        <strong>Score:</strong>{' '}
-                        <span style={{ fontSize: '1.3em', color: '#667eea' }}>
-                          {candidateDetails.detailed_explanation?.experience?.score}
-                        </span>
-                      </p>
                     </div>
                   </div>
                 </div>

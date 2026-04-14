@@ -199,32 +199,62 @@ def _extract_job_from_entry(entry: dict) -> dict:
     """Extract job description data from a flexible entry format"""
     job = {}
     
+    # Normalize keys first (lowercase, underscores)
+    normalized_entry = {}
+    for key, value in entry.items():
+        if key:
+            norm_key = key.strip().lower().replace(' ', '_').replace('-', '_')
+            normalized_entry[norm_key] = value
+    
+    # Log all available normalized fields for first job
+    if not hasattr(_extract_job_from_entry, 'logged_fields'):
+        logger.warning(f"AVAILABLE FIELDS IN JOB DATA: {list(normalized_entry.keys())}")
+        _extract_job_from_entry.logged_fields = True
+    
     # Map various field names to standard job fields
     field_mappings = {
-        'title': ['title', 'job_title', 'position', 'role', 'job_position'],
-        'description': ['description', 'job_description', 'description', 'details', 'content'],
-        'required_skills': ['required_skills', 'required_skills', 'must_have', 'core_skills', 'required'],
-        'optional_skills': ['optional_skills', 'nice_to_have', 'preferred', 'optional'],
-        'company': ['company', 'organization', 'employer', 'company_name'],
-        'location': ['location', 'job_location', 'office', 'place'],
-        'years_required': ['years_required', 'experience_required', 'years', 'experience', 'min_years'],
-        'experience_level': ['experience_level', 'level', 'seniority', 'seniority_level'],
-        'salary_range': ['salary_range', 'salary', 'compensation', 'pay']
+        'title': ['title', 'job_title', 'position', 'role', 'job_position', 'job_name'],
+        'description': ['description', 'job_description', 'details', 'content', 'job_details', 'about_role', 'role_description'],
+        'required_skills': ['required_skills', 'must_have_skills', 'must_have', 'core_skills', 'required_skills_list', 'required', 'skills_required', 'required_competencies'],
+        'optional_skills': ['optional_skills', 'nice_to_have_skills', 'nice_to_have', 'preferred_skills', 'preferred', 'good_to_have'],
+        'company': ['company', 'organization', 'employer', 'company_name', 'hiring_company'],
+        'location': ['location', 'job_location', 'office', 'place', 'work_location', 'office_location'],
+        'years_required': ['years_required', 'experience_required', 'experience', 'min_years', 'min_experience', 'years_of_experience_required', 'experience_level_years'],
+        'experience_level': ['experience_level', 'level', 'seniority', 'seniority_level', 'job_level', 'career_level'],
+        'salary_range': ['salary_range', 'salary', 'compensation', 'pay', 'salary_band', 'salary_range_usd']
     }
     
     # Try to map fields from entry
     for target_field, source_fields in field_mappings.items():
         for source_field in source_fields:
-            if source_field in entry and entry[source_field]:
-                job[target_field] = entry[source_field]
+            if source_field in normalized_entry and normalized_entry[source_field]:
+                job[target_field] = normalized_entry[source_field]
+                logger.debug(f"Mapped job field {source_field} to {target_field}: {normalized_entry[source_field]}")
                 break
+    
+    # DEBUG: Log what happened with skills specifically
+    job_title = job.get('title', 'Unknown')
+    if 'required_skills' in job and job['required_skills']:
+        logger.warning(f"[JOB REQUIRED SKILLS FOUND] {job_title}: {job['required_skills']}")
+    else:
+        logger.warning(f"[NO JOB REQUIRED SKILLS FOUND] {job_title}: Checked for required_skills")
+        logger.warning(f"  - required_skills value: {normalized_entry.get('required_skills', 'NOT FOUND')}")
+        logger.warning(f"  - must_have_skills value: {normalized_entry.get('must_have_skills', 'NOT FOUND')}")
+        logger.warning(f"  - skills_required value: {normalized_entry.get('skills_required', 'NOT FOUND')}")
     
     # Ensure minimum required fields
     if 'title' not in job or not job['title']:
-        job['title'] = entry.get('title', 'Untitled Job')
+        job['title'] = normalized_entry.get('title', 'Untitled Job')
     
     if 'description' not in job or not job['description']:
-        job['description'] = entry.get('description', entry.get('content', ''))
+        job['description'] = normalized_entry.get('description', normalized_entry.get('content', ''))
+    
+    # Ensure skills are lists
+    if 'required_skills' not in job or not job['required_skills']:
+        job['required_skills'] = []
+    
+    if 'optional_skills' not in job or not job['optional_skills']:
+        job['optional_skills'] = []
     
     if 'id' not in job:
         job['id'] = f"jd-{uuid.uuid4().hex[:8]}"
@@ -243,21 +273,29 @@ def _extract_candidate_from_entry(entry: dict) -> dict:
             norm_key = key.strip().lower().replace(' ', '_').replace('-', '_')
             normalized_entry[norm_key] = value
     
+    # Log all available normalized fields for first candidate
+    if not hasattr(_extract_candidate_from_entry, 'logged_fields'):
+        logger.warning(f"AVAILABLE FIELDS IN CSV: {list(normalized_entry.keys())}")
+        _extract_candidate_from_entry.logged_fields = True
+    
     # Map various field names to standard candidate fields
     field_mappings = {
         'name': ['name', 'full_name', 'candidate_name', 'applicant_name', 'candidate', 'fullname'],
-        'summary': ['summary', 'bio', 'about', 'profile', 'description', 'content', 'professional_summary', 'overview'],
-        'skills': ['skills', 'skill', 'technical_skills', 'competencies', 'expertise', 'tecnical_skils', 'tech_skills', 'key_skills', 'main_skills', 'abilities'],
-        'experience_years': ['experience_years', 'years_experience', 'years', 'experience', 'exp_years', 'total_experience', 'years_of_experience', 'yrs_experience'],
+        'summary': ['summary', 'bio', 'about', 'profile', 'description', 'content', 'professional_summary', 'overview', 'parsed_summary'],
+        'skills': ['skills', 'skill', 'technical_skills', 'competencies', 'expertise', 'tecnical_skils', 'tech_skills', 'key_skills', 'main_skills', 'abilities', 'parsed_skills', 'all_skills'],
+        'experience_years': ['experience_years', 'years_experience', 'years', 'experience', 'exp_years', 'total_experience', 'years_of_experience', 'yrs_experience', 'parsed_metadata_calculated_years_experience'],
         'email': ['email', 'email_address', 'email_id', 'work_email'],
-        'phone': ['phone', 'phone_number', 'contact_phone', 'mobile'],
+        'phone': ['phone', 'phone_number', 'contact_phone', 'mobile', 'mobile_number'],
         'location': ['location', 'city', 'place', 'based_in', 'current_location', 'region'],
-        'education': ['education', 'degree', 'university', 'qualification', 'educational_qualification', 'academic'],
+        'education': ['education', 'degree', 'university', 'qualification', 'educational_qualification', 'academic', 'parsed_metadata_education', 'education_status'],
         'certifications': ['certifications', 'cert', 'credentials', 'certificates', 'certs', 'qualifications'],
-        'previous_roles': ['previous_roles', 'work_experience', 'experience', 'past_roles', 'employment', 'job_titles', 'work_history'],
+        'previous_roles': ['previous_roles', 'work_experience', 'experience', 'past_roles', 'employment', 'job_titles', 'work_history', 'parsed_work_experience', 'current_title', 'recent_experience_type'],
         'linkedin_url': ['linkedin', 'linkedin_url', 'linkedin_profile', 'linkedin_id'],
         'github_url': ['github', 'github_url', 'github_profile', 'github_id', 'github_username']
     }
+    
+    # Additional skill field sources to combine
+    skill_field_alternates = ['programming_languages', 'backend_frameworks', 'frontend_technologies', 'mobile_technologies']
     
     # Try to map fields from entry
     for target_field, source_fields in field_mappings.items():
@@ -266,6 +304,37 @@ def _extract_candidate_from_entry(entry: dict) -> dict:
                 candidate[target_field] = normalized_entry[source_field]
                 logger.debug(f"Mapped {source_field} to {target_field}: {normalized_entry[source_field]}")
                 break
+    
+    # DEBUG: Log what happened with skills specifically
+    candidate_name = candidate.get('name', 'Unknown')
+    if 'skills' in candidate:
+        logger.warning(f"[SKILLS FOUND] {candidate_name}: {candidate['skills']}")
+    else:
+        logger.warning(f"[NO SKILLS] {candidate_name}: Checking alternate fields...")
+        logger.warning(f"  - parsed_skills: {normalized_entry.get('parsed_skills', 'NOT FOUND')}")
+        logger.warning(f"  - programming_languages: {normalized_entry.get('programming_languages', 'NOT FOUND')}")
+        logger.warning(f"  - backend_frameworks: {normalized_entry.get('backend_frameworks', 'NOT FOUND')}")
+        logger.warning(f"  - frontend_technologies: {normalized_entry.get('frontend_technologies', 'NOT FOUND')}")
+        logger.warning(f"  - mobile_technologies: {normalized_entry.get('mobile_technologies', 'NOT FOUND')}")
+    
+    # If skills not found, try combining alternate skill fields
+    if 'skills' not in candidate or not candidate['skills']:
+        combined_skills = []
+        for skill_field in skill_field_alternates:
+            if skill_field in normalized_entry and normalized_entry[skill_field]:
+                field_value = normalized_entry[skill_field]
+                if isinstance(field_value, str):
+                    combined_skills.extend(_normalize_skills(field_value))
+                elif isinstance(field_value, list):
+                    combined_skills.extend(field_value)
+        
+        if combined_skills:
+            candidate['skills'] = combined_skills
+            logger.warning(f"[COMBINED SKILLS] {candidate_name}: {combined_skills}")
+    
+    # Convert skills to list if it's a string
+    if 'skills' in candidate and isinstance(candidate['skills'], str):
+        candidate['skills'] = _normalize_skills(candidate['skills'])
     
     # Ensure minimum required fields
     if 'name' not in candidate or not candidate['name']:
@@ -287,6 +356,18 @@ def _extract_candidate_from_entry(entry: dict) -> dict:
         else:
             candidate['summary'] = f"Professional profile for {candidate.get('name', 'candidate')}"
     
+    # Ensure skills is always a list
+    if 'skills' not in candidate or not candidate['skills']:
+        candidate['skills'] = []
+    
+    # Ensure certifications is always a list
+    if 'certifications' not in candidate or not candidate['certifications']:
+        candidate['certifications'] = []
+    
+    # Ensure previous_roles is always a list
+    if 'previous_roles' not in candidate or not candidate['previous_roles']:
+        candidate['previous_roles'] = []
+    
     if 'id' not in candidate:
         candidate['id'] = f"cand-{uuid.uuid4().hex[:8]}"
     
@@ -294,18 +375,39 @@ def _extract_candidate_from_entry(entry: dict) -> dict:
 
 
 def _normalize_skills(skills_str: str) -> List[str]:
-    """Convert skills string to list, handling various separators"""
+    """Convert skills string to list, handling various separators and formats"""
     if not skills_str:
         return []
     
-    # Try different separators
-    separators = [';', ',', '|']
+    if isinstance(skills_str, list):
+        return skills_str
+    
+    # Convert to string just in case
+    skills_str = str(skills_str).strip()
+    
+    if not skills_str:
+        return []
+    
+    # Try to parse as JSON array first
+    try:
+        import json
+        parsed = json.loads(skills_str)
+        if isinstance(parsed, list):
+            return [str(s).strip() for s in parsed if s]
+    except:
+        pass
+    
+    # Try different separators in order of likelihood
+    separators = [',', ';', '\\n', '|', '\n']
     for sep in separators:
         if sep in skills_str:
-            return [s.strip() for s in skills_str.split(sep) if s.strip()]
+            skills = [s.strip() for s in skills_str.split(sep) if s.strip()]
+            if len(skills) > 1:  # Only use this separator if it actually splits into multiple items
+                logger.debug(f"Split skills using '{sep}': {skills}")
+                return skills
     
     # If no separator found, return as single-item list
-    return [skills_str.strip()] if skills_str.strip() else []
+    return [skills_str] if skills_str else []
 
 
 # ============================================================================
@@ -448,10 +550,12 @@ async def upload_jobs(file: UploadFile = File(...)):
             try:
                 # Extract job data intelligently from flexible format
                 job_data = _extract_job_from_entry(entry)
+                logger.debug(f"Extracted job {i+1}: title={job_data.get('title')}, required_skills={job_data.get('required_skills')}")
                 
                 # Validate minimum required fields
                 if not job_data.get('title') or not job_data.get('description'):
                     errors.append(f"Entry {i+1}: Missing title or description")
+                    logger.warning(f"Entry {i+1} rejected: title={job_data.get('title')}, description={job_data.get('description')}")
                     continue
                 
                 # Parse skills if they're strings
@@ -474,8 +578,10 @@ async def upload_jobs(file: UploadFile = File(...)):
                 if database.add_job(job_data):
                     matching_engine.add_job_descriptions([job_data])
                     jobs_added += 1
+                    logger.info(f"Added job: {job_data.get('title')} | Required Skills: {job_data.get('required_skills')} | Optional Skills: {job_data.get('optional_skills')} | Experience: {job_data.get('years_required')}y")
             except Exception as e:
                 errors.append(f"Entry {i+1}: {str(e)}")
+                logger.error(f"Error processing entry {i+1}: {e}", exc_info=True)
         
         return {
             "message": f"Uploaded {jobs_added} jobs",
@@ -589,19 +695,22 @@ async def upload_candidates(file: UploadFile = File(...)):
         
         logger.info(f"Parsed {len(candidates_data)} entries from {file.filename}")
         if candidates_data:
-            logger.debug(f"First entry sample: {candidates_data[0]}")
+            logger.debug(f"First entry sample keys: {list(candidates_data[0].keys())}")
         
         # Process and add candidates
         for i, entry in enumerate(candidates_data):
             try:
+                # Log raw entry before extraction
+                logger.debug(f"Entry {i+1} raw skills fields - parsed_skills: {entry.get('parsed_skills')}, programming_languages: {entry.get('programming_languages')}, backend_frameworks: {entry.get('backend_frameworks')}, frontend_technologies: {entry.get('frontend_technologies')}")
+                
                 # Extract candidate data intelligently from flexible format
                 candidate_data = _extract_candidate_from_entry(entry)
-                logger.debug(f"Extracted candidate {i+1}: name={candidate_data.get('name')}, has_summary={bool(candidate_data.get('summary'))}")
+                logger.debug(f"Extracted candidate {i+1}: name={candidate_data.get('name')}, skills={candidate_data.get('skills')}, skills_count={len(candidate_data.get('skills', []))}")
                 
                 # Validate minimum required fields
                 if not candidate_data.get('name') or not candidate_data.get('summary'):
                     errors.append(f"Entry {i+1}: Missing name or summary")
-                    logger.warning(f"Entry {i+1} rejected: name={candidate_data.get('name')}, summary={candidate_data.get('summary')}")
+                    logger.warning(f"Entry {i+1} rejected: name={candidate_data.get('name')}, summary={bool(candidate_data.get('summary'))}")
                     continue
                 
                 # Parse skills if they're strings
@@ -609,6 +718,9 @@ async def upload_candidates(file: UploadFile = File(...)):
                     candidate_data['skills'] = _normalize_skills(candidate_data['skills'])
                 elif not candidate_data.get('skills'):
                     candidate_data['skills'] = []
+                
+                # Log after skill parsing
+                logger.info(f"Candidate {i+1} ({candidate_data.get('name')}): skills={candidate_data.get('skills')}")
                 
                 # Parse certifications if they're strings
                 if isinstance(candidate_data.get('certifications'), str):

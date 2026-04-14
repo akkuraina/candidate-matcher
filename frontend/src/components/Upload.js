@@ -90,7 +90,7 @@ function Upload({ onUploadSuccess }) {
         </label>
 
         {file && (
-          <p style={{ marginTop: '15px', color: '#333' }}>
+          <p style={{ marginTop: '15px', color: '#00bfff' }}>
             Selected: <strong>{file.name}</strong>
           </p>
         )}
@@ -111,15 +111,15 @@ function Upload({ onUploadSuccess }) {
         </div>
       )}
 
-      <div style={{ marginTop: '30px', padding: '20px', backgroundColor: '#f5f5f5', borderRadius: '5px' }}>
-        <h3>📋 Format Examples (Field Names Don't Matter - They're Auto-Mapped!)</h3>
+      <div style={{ marginTop: '30px', padding: '20px', backgroundColor: '#16213e', borderRadius: '5px', border: '1px solid rgba(0, 191, 255, 0.2)' }}>
+        <h3 style={{ color: '#00bfff' }}>📋 Format Examples (Field Names Don't Matter - They're Auto-Mapped!)</h3>
         
-        <p style={{ color: '#555', marginBottom: '15px', fontStyle: 'italic' }}>
+        <p style={{ color: '#b0b9c8', marginBottom: '15px', fontStyle: 'italic' }}>
           ✨ <strong>Pro Tip:</strong> Field names like "title", "job_title", "position", or "role" all work. The system automatically maps them to the correct fields.
         </p>
 
-        <h4>JSON Format (Structured):</h4>
-        <pre style={{ backgroundColor: 'white', padding: '10px', borderRadius: '3px', overflow: 'auto', fontSize: '0.85em' }}>
+        <h4 style={{ color: '#00bfff' }}>JSON Format (Structured):</h4>
+        <pre style={{ backgroundColor: '#0f3c5e', color: '#00ff88', padding: '10px', borderRadius: '3px', overflow: 'auto', fontSize: '0.85em', border: '1px solid rgba(0, 191, 255, 0.2)' }}>
 {`[
   {
     "title": "Senior Backend Engineer",
@@ -131,69 +131,69 @@ function Upload({ onUploadSuccess }) {
 ]`}
         </pre>
 
-        <h4>CSV Format (Any Column Names):</h4>
-        <pre style={{ backgroundColor: 'white', padding: '10px', borderRadius: '3px', overflow: 'auto', fontSize: '0.85em' }}>
+        <h4 style={{ color: '#00bfff' }}>CSV Format (Any Column Names):</h4>
+        <pre style={{ backgroundColor: '#0f3c5e', color: '#00ff88', padding: '10px', borderRadius: '3px', overflow: 'auto', fontSize: '0.85em', border: '1px solid rgba(0, 191, 255, 0.2)' }}>
 {`position,description,must_have,nice_to_have,experience
 Senior Backend Engineer,Requirements...,Python;FastAPI;Docker,Kubernetes,5`}
         </pre>
 
-        <h4>Excel Format (.xlsx) - Two Styles:</h4>
-        <p style={{ fontSize: '0.9em', color: '#666', marginTop: '10px' }}>
+        <h4 style={{ color: '#00bfff' }}>Excel Format (.xlsx) - Two Styles:</h4>
+        <p style={{ fontSize: '0.9em', color: '#b0b9c8', marginTop: '10px' }}>
           <strong>Style 1: Structured Table</strong> - Headers in first row, data below (works like CSV):
         </p>
-        <table style={{ borderCollapse: 'collapse', marginTop: '10px', marginBottom: '20px', border: '1px solid #ddd', width: '100%', fontSize: '0.85em' }}>
+        <table style={{ borderCollapse: 'collapse', marginTop: '10px', marginBottom: '20px', border: '1px solid rgba(0, 191, 255, 0.2)', width: '100%', fontSize: '0.85em' }}>
           <thead>
-            <tr style={{ backgroundColor: '#f0f0f0' }}>
-              <th style={{ border: '1px solid #ddd', padding: '8px' }}>title</th>
-              <th style={{ border: '1px solid #ddd', padding: '8px' }}>description</th>
-              <th style={{ border: '1px solid #ddd', padding: '8px' }}>skills</th>
+            <tr style={{ backgroundColor: '#0f3c5e', borderBottom: '1px solid rgba(0, 191, 255, 0.3)' }}>
+              <th style={{ border: '1px solid rgba(0, 191, 255, 0.2)', padding: '8px', color: '#00bfff' }}>title</th>
+              <th style={{ border: '1px solid rgba(0, 191, 255, 0.2)', padding: '8px', color: '#00bfff' }}>description</th>
+              <th style={{ border: '1px solid rgba(0, 191, 255, 0.2)', padding: '8px', color: '#00bfff' }}>skills</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td style={{ border: '1px solid #ddd', padding: '8px' }}>Senior Backend Engineer</td>
-              <td style={{ border: '1px solid #ddd', padding: '8px' }}>We're looking for...</td>
-              <td style={{ border: '1px solid #ddd', padding: '8px' }}>Python; FastAPI; Docker</td>
+              <td style={{ border: '1px solid rgba(0, 191, 255, 0.2)', padding: '8px', color: '#b0b9c8' }}>Senior Backend Engineer</td>
+              <td style={{ border: '1px solid rgba(0, 191, 255, 0.2)', padding: '8px', color: '#b0b9c8' }}>We're looking for...</td>
+              <td style={{ border: '1px solid rgba(0, 191, 255, 0.2)', padding: '8px', color: '#b0b9c8' }}>Python; FastAPI; Docker</td>
             </tr>
           </tbody>
         </table>
 
-        <p style={{ fontSize: '0.9em', color: '#666' }}>
+        <p style={{ fontSize: '0.9em', color: '#b0b9c8' }}>
           <strong>Style 2: Free-form Data</strong> - No table structure? No problem! The system extracts all text and creates entries:
         </p>
-        <pre style={{ backgroundColor: 'white', padding: '10px', borderRadius: '3px', overflow: 'auto', fontSize: '0.85em' }}>
+        <pre style={{ backgroundColor: '#0f3c5e', color: '#00ff88', padding: '10px', borderRadius: '3px', overflow: 'auto', fontSize: '0.85em', border: '1px solid rgba(0, 191, 255, 0.2)' }}>
 {`Cell A1: Senior Backend Engineer
 Cell A2: Looking for an experienced engineer...
 Cell B1: Required: Python, FastAPI, Docker
 ...`}
         </pre>
 
-        <h4>Word Format (.docx) - Two Styles:</h4>
-        <p style={{ fontSize: '0.9em', color: '#666', marginTop: '10px' }}>
+        <h4 style={{ color: '#00bfff' }}>Word Format (.docx) - Two Styles:</h4>
+        <p style={{ fontSize: '0.9em', color: '#b0b9c8', marginTop: '10px' }}>
           <strong>Style 1: Tables</strong> - The system extracts data from tables in your document:
         </p>
-        <pre style={{ backgroundColor: 'white', padding: '10px', borderRadius: '3px', overflow: 'auto', fontSize: '0.85em' }}>
+        <pre style={{ backgroundColor: '#0f3c5e', color: '#00ff88', padding: '10px', borderRadius: '3px', overflow: 'auto', fontSize: '0.85em', border: '1px solid rgba(0, 191, 255, 0.2)' }}>
 {`(Word document with table)
 | Title                    | Description           | Skills         |
 | Senior Backend Engineer  | Requirements...       | Python; Docker  |
 `}
         </pre>
 
-        <p style={{ fontSize: '0.9em', color: '#666', marginTop: '10px' }}>
+        <p style={{ fontSize: '0.9em', color: '#b0b9c8', marginTop: '10px' }}>
           <strong>Style 2: Narrative Text</strong> - Job descriptions as regular paragraphs work too:
         </p>
-        <pre style={{ backgroundColor: 'white', padding: '10px', borderRadius: '3px', overflow: 'auto', fontSize: '0.85em' }}>
+        <pre style={{ backgroundColor: '#0f3c5e', color: '#00ff88', padding: '10px', borderRadius: '3px', overflow: 'auto', fontSize: '0.85em', border: '1px solid rgba(0, 191, 255, 0.2)' }}>
 {`Senior Backend Engineer
 
 We are looking for a talented software engineer to join our team.
 You will work with Python, FastAPI, and Docker...`}
         </pre>
 
-        <h4>Plain Text Format (.txt):</h4>
-        <p style={{ fontSize: '0.9em', color: '#666', marginTop: '10px' }}>
+        <h4 style={{ color: '#00bfff' }}>Plain Text Format (.txt):</h4>
+        <p style={{ fontSize: '0.9em', color: '#b0b9c8', marginTop: '10px' }}>
           Just paste a job description or candidate profile as plain text:
         </p>
-        <pre style={{ backgroundColor: 'white', padding: '10px', borderRadius: '3px', overflow: 'auto', fontSize: '0.85em' }}>
+        <pre style={{ backgroundColor: '#0f3c5e', color: '#00ff88', padding: '10px', borderRadius: '3px', overflow: 'auto', fontSize: '0.85em', border: '1px solid rgba(0, 191, 255, 0.2)' }}>
 {`Senior Backend Engineer - 5 years experience
 
 We're looking for an experienced backend engineer...
@@ -201,11 +201,11 @@ Required: Python, FastAPI, Docker
 Optional: Kubernetes, Redis`}
         </pre>
 
-        <h4>Skill Separators:</h4>
-        <p style={{ fontSize: '0.9em', color: '#666' }}>
-          Skills can be separated using: <code>;</code> (semicolon), <code>,</code> (comma), or <code>|</code> (pipe)
+        <h4 style={{ color: '#00bfff' }}>Skill Separators:</h4>
+        <p style={{ fontSize: '0.9em', color: '#b0b9c8' }}>
+          Skills can be separated using: <code style={{ backgroundColor: '#0f3c5e', color: '#00ff88', padding: '2px 6px', borderRadius: '3px' }}>;</code> (semicolon), <code style={{ backgroundColor: '#0f3c5e', color: '#00ff88', padding: '2px 6px', borderRadius: '3px' }}>,</code> (comma), or <code style={{ backgroundColor: '#0f3c5e', color: '#00ff88', padding: '2px 6px', borderRadius: '3px' }}>|</code> (pipe)
         </p>
-        <p style={{ fontSize: '0.9em', color: '#666' }}>
+        <p style={{ fontSize: '0.9em', color: '#b0b9c8' }}>
           Examples: "Python; FastAPI; Docker" or "Python, FastAPI, Docker" or "Python | FastAPI | Docker"
         </p>
       </div>

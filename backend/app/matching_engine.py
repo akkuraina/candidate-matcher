@@ -1,13 +1,3 @@
-"""
-Hybrid Candidate Matching Engine
-
-Combines multiple matching approaches:
-1. TF-IDF for keyword overlap
-2. Semantic similarity using sentence transformers
-3. Skill-based weighted scoring
-4. Experience alignment
-"""
-
 import numpy as np
 from typing import List, Dict, Tuple, Optional, Any
 from dataclasses import dataclass
@@ -71,42 +61,12 @@ class MatchingEngine:
                 self.use_embeddings = False
     
     def add_job_descriptions(self, jobs: List[Dict[str, Any]]) -> None:
-        """
-        Add job descriptions to the engine for matching.
-        
-        Expected job format:
-        {
-            'id': str,
-            'title': str,
-            'description': str,
-            'required_skills': List[str],
-            'optional_skills': List[str],
-            'experience_level': str (junior/mid/senior),
-            'years_required': int,
-            'seniority_score': int (0-100)
-        }
-        """
-        # UPDATE jobs instead of REPLACE
+      
         for job in jobs:
             self.jobs[job['id']] = job
         logger.info(f"Added {len(jobs)} job descriptions. Total jobs: {len(self.jobs)}")
     
     def add_candidates(self, candidates: List[Dict[str, Any]]) -> None:
-        """
-        Add candidates to the engine for matching.
-        
-        Expected candidate format:
-        {
-            'id': str,
-            'name': str,
-            'summary': str,
-            'skills': List[str],
-            'experience_years': int,
-            'education': str,
-            'previous_roles': List[str]
-        }
-        """
-        # UPDATE candidates instead of REPLACE
         for candidate in candidates:
             self.candidates[candidate['id']] = candidate
         logger.info(f"Added {len(candidates)} candidates. Total candidates: {len(self.candidates)}")

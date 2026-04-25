@@ -71,6 +71,51 @@ class MatchingEngine:
             self.candidates[candidate['id']] = candidate
         logger.info(f"Added {len(candidates)} candidates. Total candidates: {len(self.candidates)}")
     
+    def _parse_years_from_text(self, value: Any) -> int:
+        """
+        Parse years of experience from various formats.
+        
+        Handles:
+        - Numeric: 5, "5"
+        - Text with years: "5 years", "five years"
+        - Text numbers: "zero", "one", "two", etc.
+        
+        Returns:
+            Integer years, or 0 if unable to parse
+        """
+        if value is None:
+            return 0
+        
+        # If already a number
+        if isinstance(value, (int, float)):
+            return int(value)
+        
+        # Convert to string and lowercase
+        text = str(value).lower().strip()
+        
+        # Text number mapping
+        text_numbers = {
+            'zero': 0, 'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5,
+            'six': 6, 'seven': 7, 'eight': 8, 'nine': 9, 'ten': 10,
+            'eleven': 11, 'twelve': 12, 'thirteen': 13, 'fourteen': 14, 'fifteen': 15,
+            'sixteen': 16, 'seventeen': 17, 'eighteen': 18, 'nineteen': 19, 'twenty': 20,
+            'thirty': 30, 'forty': 40, 'fifty': 50
+        }
+        
+        # Try to find a numeric value in the text
+        numbers = re.findall(r'\d+', text)
+        if numbers:
+            return int(numbers[0])
+        
+        # Try to find a text number
+        for word, num in text_numbers.items():
+            if word in text:
+                return num
+        
+        # Couldn't parse
+        logger.debug(f"Could not parse years from value: {value}")
+        return 0
+
     def _preprocess_text(self, text: str) -> str:
         """Normalize and clean text for matching."""
         text = text.lower()
@@ -227,8 +272,9 @@ class MatchingEngine:
         Returns:
             Tuple of (score, experience_details)
         """
-        required_years = job.get('years_required', 0)
-        candidate_years = candidate.get('experience_years', 0)
+        # Parse years from both text and numeric formats
+        required_years = self._parse_years_from_text(job.get('years_required', 0))
+        candidate_years = self._parse_years_from_text(candidate.get('experience_years', 0))
         
         job_seniority = job.get('seniority_score', 50)  # 0-100 scale
         

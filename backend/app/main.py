@@ -65,7 +65,44 @@ UPLOAD_DIR = Path("./uploads")
 UPLOAD_DIR.mkdir(exist_ok=True)
 
 
-
+def _parse_years_from_text(value) -> int:
+    """
+    Parse years of experience from various formats.
+    Handles: numeric (5, "5"), text with years ("5 years"), text numbers ("zero", "two", etc.)
+    Returns integer years, defaults to 0 if unable to parse
+    """
+    if value is None:
+        return 0
+    
+    # If already a number
+    if isinstance(value, (int, float)):
+        return int(value)
+    
+    # Convert to string and lowercase
+    text = str(value).lower().strip()
+    
+    # Text number mapping
+    text_numbers = {
+        'zero': 0, 'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5,
+        'six': 6, 'seven': 7, 'eight': 8, 'nine': 9, 'ten': 10,
+        'eleven': 11, 'twelve': 12, 'thirteen': 13, 'fourteen': 14, 'fifteen': 15,
+        'sixteen': 16, 'seventeen': 17, 'eighteen': 18, 'nineteen': 19, 'twenty': 20,
+        'thirty': 30, 'forty': 40, 'fifty': 50
+    }
+    
+    # Try to find a numeric value in the text first
+    numbers = re.findall(r'\d+', text)
+    if numbers:
+        return int(numbers[0])
+    
+    # Try to find a text number
+    for word, num in text_numbers.items():
+        if word in text:
+            return num
+    
+    # Couldn't parse
+    logger.debug(f"Could not parse years from value: {value}")
+    return 0
 
 
 def _sync_engine():
@@ -649,11 +686,10 @@ async def upload_jobs(file: UploadFile = File(...)):
                 elif not job_data.get('optional_skills'):
                     job_data['optional_skills'] = []
                 
-                # Parse years_required
-                try:
-                    job_data['years_required'] = int(job_data.get('years_required', 0))
-                except (ValueError, TypeError):
-                    job_data['years_required'] = 0
+                # Parse years_required using text parser
+                raw_years = job_data.get('years_required', 0)
+                job_data['years_required'] = _parse_years_from_text(raw_years)
+
                 
                 # Final validation: ensure skills are set
                 logger.warning(f"[UPLOAD PRE-SAVE] Job: {job_data.get('title')} | Required Skills Count: {len(job_data.get('required_skills', []))} | Optional Skills Count: {len(job_data.get('optional_skills', []))}")
@@ -813,11 +849,10 @@ async def upload_candidates(file: UploadFile = File(...)):
                 elif not candidate_data.get('certifications'):
                     candidate_data['certifications'] = []
                 
-                # Parse experience_years
-                try:
-                    candidate_data['experience_years'] = int(candidate_data.get('experience_years', 0))
-                except (ValueError, TypeError):
-                    candidate_data['experience_years'] = 0
+                # Parse experience_years using text parser
+                raw_exp = candidate_data.get('experience_years', 0)
+                candidate_data['experience_years'] = _parse_years_from_text(raw_exp)
+
                 
                 if database.add_candidate(candidate_data):
                     matching_engine.add_candidates([candidate_data])
@@ -836,6 +871,62 @@ async def upload_candidates(file: UploadFile = File(...)):
     except Exception as e:
         logger.error(f"Error uploading candidates: {e}")
         raise HTTPException(status_code=400, detail=f"Error processing file: {str(e)}")
+
+
+# ============================================================================
+# DELETE ENDPOINTS
+# ============================================================================
+
+@app.delete("/jobs/{job_id}")
+async def delete_job(job_id: str):
+    """Delete a specific job description"""
+    job = database.get_job(job_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+    
+    if database.delete_job(job_id):
+        # Resync the matching engine
+        _sync_engine()
+        return {"message": f"Job '{job_id}' deleted successfully", "deleted_id": job_id}
+    else:
+        raise HTTPException(status_code=500, detail="Failed to delete job")
+
+
+@app.delete("/jobs")
+async def delete_all_jobs():
+    """Delete all job descriptions"""
+    if database.delete_all_jobs():
+        # Resync the matching engine
+        _sync_engine()
+        return {"message": "All jobs deleted successfully"}
+    else:
+        raise HTTPException(status_code=500, detail="Failed to delete jobs")
+
+
+@app.delete("/candidates/{candidate_id}")
+async def delete_candidate(candidate_id: str):
+    """Delete a specific candidate profile"""
+    candidate = database.get_candidate(candidate_id)
+    if not candidate:
+        raise HTTPException(status_code=404, detail="Candidate not found")
+    
+    if database.delete_candidate(candidate_id):
+        # Resync the matching engine
+        _sync_engine()
+        return {"message": f"Candidate '{candidate_id}' deleted successfully", "deleted_id": candidate_id}
+    else:
+        raise HTTPException(status_code=500, detail="Failed to delete candidate")
+
+
+@app.delete("/candidates")
+async def delete_all_candidates():
+    """Delete all candidate profiles"""
+    if database.delete_all_candidates():
+        # Resync the matching engine
+        _sync_engine()
+        return {"message": "All candidates deleted successfully"}
+    else:
+        raise HTTPException(status_code=500, detail="Failed to delete candidates")
 
 
 # ============================================================================

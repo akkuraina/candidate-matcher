@@ -20,6 +20,43 @@ function JobList({ onSelectJob }) {
     }
   };
 
+  const handleDeleteJob = async (e, jobId) => {
+    e.stopPropagation();
+    if (window.confirm('Are you sure you want to delete this job?')) {
+      try {
+        const response = await fetch(`/jobs/${jobId}`, {
+          method: 'DELETE'
+        });
+        if (response.ok) {
+          setJobs(jobs.filter(job => job.id !== jobId));
+        } else {
+          alert('Failed to delete job');
+        }
+      } catch (error) {
+        console.error('Error deleting job:', error);
+        alert('Error deleting job');
+      }
+    }
+  };
+
+  const handleDeleteAllJobs = async () => {
+    if (window.confirm('Are you sure you want to delete ALL jobs? This action cannot be undone.')) {
+      try {
+        const response = await fetch('/jobs', {
+          method: 'DELETE'
+        });
+        if (response.ok) {
+          setJobs([]);
+        } else {
+          alert('Failed to delete all jobs');
+        }
+      } catch (error) {
+        console.error('Error deleting all jobs:', error);
+        alert('Error deleting all jobs');
+      }
+    }
+  };
+
   if (loading) {
     return (
       <div className="content-section">
@@ -30,7 +67,18 @@ function JobList({ onSelectJob }) {
 
   return (
     <div className="content-section">
-      <h2>Job Descriptions</h2>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <h2>Job Descriptions</h2>
+        {jobs.length > 0 && (
+          <button 
+            className="delete-btn" 
+            onClick={handleDeleteAllJobs}
+            style={{ padding: '8px 12px', fontSize: '0.9em' }}
+          >
+            Delete All
+          </button>
+        )}
+      </div>
       <div className="list-container">
         {jobs.length === 0 ? (
           <p>No jobs available. Upload some job descriptions first.</p>
@@ -40,7 +88,23 @@ function JobList({ onSelectJob }) {
               key={job.id} 
               className="card"
               onClick={() => onSelectJob(job.id)}
+              style={{ position: 'relative' }}
             >
+              <button
+                className="delete-btn"
+                onClick={(e) => handleDeleteJob(e, job.id)}
+                style={{
+                  position: 'absolute',
+                  top: '10px',
+                  right: '10px',
+                  padding: '4px 8px',
+                  fontSize: '0.8em',
+                  zIndex: 10
+                }}
+                title="Delete this job"
+              >
+                ✕
+              </button>
               <h3>{job.title}</h3>
               {job.company && <p><strong>Company:</strong> {job.company}</p>}
               {job.location && <p><strong>Location:</strong> {job.location}</p>}
@@ -68,3 +132,4 @@ function JobList({ onSelectJob }) {
 }
 
 export default JobList;
+

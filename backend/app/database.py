@@ -276,3 +276,72 @@ class Database:
             return None
         finally:
             db.close()
+    
+    def delete_job(self, job_id: str) -> bool:
+        """Delete a job description and related match results"""
+        db = self.get_session()
+        try:
+            # Delete related match results
+            db.query(MatchResultDB).filter(MatchResultDB.job_id == job_id).delete()
+            # Delete the job
+            db.query(JobDescriptionDB).filter(JobDescriptionDB.id == job_id).delete()
+            db.commit()
+            logger.info(f"Deleted job: {job_id}")
+            return True
+        except Exception as e:
+            logger.error(f"Error deleting job: {e}")
+            db.rollback()
+            return False
+        finally:
+            db.close()
+    
+    def delete_candidate(self, candidate_id: str) -> bool:
+        """Delete a candidate profile and related match results"""
+        db = self.get_session()
+        try:
+            # Delete related match results
+            db.query(MatchResultDB).filter(MatchResultDB.candidate_id == candidate_id).delete()
+            # Delete the candidate
+            db.query(CandidateProfileDB).filter(CandidateProfileDB.id == candidate_id).delete()
+            db.commit()
+            logger.info(f"Deleted candidate: {candidate_id}")
+            return True
+        except Exception as e:
+            logger.error(f"Error deleting candidate: {e}")
+            db.rollback()
+            return False
+        finally:
+            db.close()
+    
+    def delete_all_jobs(self) -> bool:
+        """Delete all job descriptions and related match results"""
+        db = self.get_session()
+        try:
+            db.query(MatchResultDB).delete()
+            db.query(JobDescriptionDB).delete()
+            db.commit()
+            logger.info("Deleted all jobs")
+            return True
+        except Exception as e:
+            logger.error(f"Error deleting all jobs: {e}")
+            db.rollback()
+            return False
+        finally:
+            db.close()
+    
+    def delete_all_candidates(self) -> bool:
+        """Delete all candidate profiles and related match results"""
+        db = self.get_session()
+        try:
+            db.query(MatchResultDB).delete()
+            db.query(CandidateProfileDB).delete()
+            db.commit()
+            logger.info("Deleted all candidates")
+            return True
+        except Exception as e:
+            logger.error(f"Error deleting all candidates: {e}")
+            db.rollback()
+            return False
+        finally:
+            db.close()
+
